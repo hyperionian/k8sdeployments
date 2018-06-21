@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: minecraft-svr
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: minecraft-svr
+    spec:
+      imagePullSecrets:
+      - name: azure-registry-creds
+      containers:
+      - name: minecraft
+        image: hacking4.azurecr.io/minecraft:1.1
+        volumeMounts:
+        - name: azurefileshare
+          mountPath: /data
+      volumes:
+      - name: azurefileshare
+        persistentVolumeClaim:
+          claimName: dynamic-persistence-volume-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minecraft-svr
+  name: minecraft-svr
+spec:
+  ports:
+  - port: 25565
+    name: minecraftgame
+    targetPort: 25565
+  - port: 25575
+    name: rcon
+    targetPort: 25575
+  selector:
+    app: minecraft-svr
+  sessionAffinity: None
+  type: LoadBalancer

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minecraft-svr
+spec:
+  serviceName: "minecraft-svr"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: minecraft-svr
+  template:
+    metadata:
+      labels:
+        app: minecraft-svr
+    spec:
+      imagePullSecrets:
+      - name: azure-registry-creds
+      containers:
+      - name: minecraft
+        image: hacking4.azurecr.io/minecraft:1.1
+        volumeMounts:
+        - name: data-vol
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: data-vol
+    spec:
+      storageClassName: azurefile
+      accessModes:
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: minecraft-svr
+  name: minecraft-svr
+spec:
+  ports:
+  - port: 25565
+    name: minecraftgame
+    targetPort: 25565
+  - port: 25575
+    name: rcon
+    targetPort: 25575
+  selector:
+    app: minecraft-svr
+  sessionAffinity: None
+  type: LoadBalancer
