@@ -12,7 +12,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
   azureFile:
-    secretName: storagesecret
+    secretName: azure-secret
     shareName: minecraftdata
     readOnly: false
   mountOptions:
