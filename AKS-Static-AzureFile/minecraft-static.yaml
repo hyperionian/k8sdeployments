@@ -1,13 +1,16 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minecraft-svr
+  name: minecraft-svr-static
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-svr-static
   template:
     metadata:
       labels:
-        app: minecraft-svr
+        app: minecraft-svr-static
     spec:
       imagePullSecrets:
       - name: azure-registry-creds
@@ -26,8 +29,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: minecraft-svr
-  name: minecraft-svr
+    app: minecraft-static
+  name: minecraft-static
 spec:
   ports:
   - port: 25565
@@ -37,6 +40,6 @@ spec:
     name: rcon
     targetPort: 25575
   selector:
-    app: minecraft-svr
+    app: minecraft-svr-static
   sessionAffinity: None
   type: LoadBalancer
